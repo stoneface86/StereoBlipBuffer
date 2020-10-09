@@ -25,14 +25,27 @@ int main() {
     //auto &left = synth.left();
     //auto &right = synth.right();
 
+    
+    blip_time_t time = 300;
+
+    // 50% duty square wave
+    for (int i = 500; --i; ) {
+        synth.update(time, 7, 1);
+        time += 1000;
+        synth.update(time, 0, 1);
+        time += 1000;
+    }
+
     // 75% duty square wave
-    blip_time_t time = 100;
+    time = 100;
     for (int i = 1000; --i;) {
         synth.update(time, 15);
         time += 3000;
         synth.update(time, 0);
         time += 1000;
     }
+
+    
 
 
     bbuf.end_frame(time);

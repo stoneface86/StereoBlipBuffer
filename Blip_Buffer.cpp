@@ -175,7 +175,8 @@ Blip_Synth_::Blip_Synth_(short* p, int w) :
 	volume_unit_ = 0.0;
 	kernel_unit = 0;
 	buf = 0;
-	last_amp = 0;
+	last_amp_left = 0;
+	last_amp_right = 0;
 	delta_factor = 0;
 }
 
