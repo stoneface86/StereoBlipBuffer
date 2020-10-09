@@ -80,7 +80,7 @@ Blip_Buffer::blargg_err_t Blip_Buffer::set_sample_rate(long new_rate, int msec)
 
 	if (buffer_size_ != new_size)
 	{
-		void* p = realloc(buffer_, (new_size + buffer_extra) * sizeof * buffer_);
+		void* p = realloc(buffer_, (new_size + buffer_extra) * sizeof(*buffer_) * 2);
 		if (!p)
 			return "Out of memory";
 		buffer_ = (buf_t_*)p;
