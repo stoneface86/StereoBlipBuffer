@@ -38,7 +38,7 @@ public:
 	// the buffer. Returns number of samples actually read and removed. If stereo is
 	// true, increments 'dest' one extra time after writing each sample, to allow
 	// easy interleving of two channels into a stereo output buffer.
-	long read_samples( blip_sample_t* dest, long max_samples, int stereo = 0 );
+	long read_samples( blip_sample_t* dest, long max_samples);
 	
 // Additional optional features
 
@@ -105,7 +105,9 @@ public:
 	buf_t_* buffer_;
 	long buffer_size_;
 private:
-	long reader_accum;
+	long reader_accum_left;
+	long reader_accum_right;
+
 	int bass_shift;
 	long sample_rate_;
 	long clock_rate_;
@@ -228,29 +230,29 @@ private:
 int const blip_sample_bits = 30;
 
 // Optimized inline sample reader for custom sample formats and mixing of Blip_Buffer samples
-class Blip_Reader {
-public:
-	// Begin reading samples from buffer. Returns value to pass to next() (can
-	// be ignored if default bass_freq is acceptable).
-	int begin( Blip_Buffer& );
-	
-	// Current sample
-	long read() const                       { return accum >> (blip_sample_bits - 16); }
-	
-	// Current raw sample in full internal resolution
-	long read_raw() const                   { return accum; }
-	
-	// Advance to next sample
-	void next( int bass_shift = 9 )         { accum += *buf++ - (accum >> bass_shift); }
-	
-	// End reading samples from buffer. The number of samples read must now be removed
-	// using Blip_Buffer::remove_samples().
-	void end( Blip_Buffer& b )              { b.reader_accum = accum; }
-	
-private:
-	const Blip_Buffer::buf_t_* buf;
-	long accum;
-};
+//class Blip_Reader {
+//public:
+//	// Begin reading samples from buffer. Returns value to pass to next() (can
+//	// be ignored if default bass_freq is acceptable).
+//	int begin( Blip_Buffer& );
+//	
+//	// Current sample
+//	long read() const                       { return accum >> (blip_sample_bits - 16); }
+//	
+//	// Current raw sample in full internal resolution
+//	long read_raw() const                   { return accum; }
+//	
+//	// Advance to next sample
+//	void next( int bass_shift = 9 )         { accum += *buf++ - (accum >> bass_shift); }
+//	
+//	// End reading samples from buffer. The number of samples read must now be removed
+//	// using Blip_Buffer::remove_samples().
+//	void end( Blip_Buffer& b )              { b.reader_accum = accum; }
+//	
+//private:
+//	const Blip_Buffer::buf_t_* buf;
+//	long accum;
+//};
 
 
 // End of public interface
@@ -344,12 +346,12 @@ inline int  Blip_Buffer::output_latency() const { return blip_widest_impulse_ / 
 inline long Blip_Buffer::clock_rate() const     { return clock_rate_; }
 inline void Blip_Buffer::clock_rate( long cps ) { factor_ = clock_rate_factor( clock_rate_ = cps ); }
 
-inline int Blip_Reader::begin( Blip_Buffer& blip_buf )
-{
-	buf = blip_buf.buffer_;
-	accum = blip_buf.reader_accum;
-	return blip_buf.bass_shift;
-}
+//inline int Blip_Reader::begin( Blip_Buffer& blip_buf )
+//{
+//	buf = blip_buf.buffer_;
+//	accum = blip_buf.reader_accum;
+//	return blip_buf.bass_shift;
+//}
 
 int const blip_max_length = 0;
 int const blip_default_length = 250;

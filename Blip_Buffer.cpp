@@ -31,7 +31,8 @@ Blip_Buffer::Blip_Buffer()
 	buffer_ = 0;
 	buffer_size_ = 0;
 	sample_rate_ = 0;
-	reader_accum = 0;
+	reader_accum_left = 0;
+	reader_accum_right = 0;
 	bass_shift = 0;
 	clock_rate_ = 0;
 	bass_freq_ = 16;
@@ -57,7 +58,9 @@ Blip_Buffer::~Blip_Buffer()
 void Blip_Buffer::clear(int entire_buffer)
 {
 	offset_ = 0;
-	reader_accum = 0;
+	reader_accum_left = 0;
+	reader_accum_right = 0;
+	
 	if (buffer_)
 	{
 		long count = (entire_buffer ? buffer_size_ : samples_avail());
@@ -341,7 +344,7 @@ void Blip_Synth_::volume_unit(double new_unit)
 	}
 }
 
-long Blip_Buffer::read_samples(blip_sample_t* out, long max_samples, int stereo)
+long Blip_Buffer::read_samples(blip_sample_t* out, long max_samples)
 {
 	long count = samples_avail();
 	if (count > max_samples)
@@ -351,42 +354,29 @@ long Blip_Buffer::read_samples(blip_sample_t* out, long max_samples, int stereo)
 	{
 		int const sample_shift = blip_sample_bits - 16;
 		int const bass_shift = this->bass_shift;
-		long accum = reader_accum;
+		long accum_left = reader_accum_left;
+		long accum_right = reader_accum_right;
+
 		buf_t_* in = buffer_;
 
-		if (!stereo)
-		{
-			for (long n = count; n--; )
-			{
-				long s = accum >> sample_shift;
-				accum -= accum >> bass_shift;
-				accum += *in++;
-				in++;
-				*out++ = (blip_sample_t)s;
+		#define read_sample(accum) \
+			s = accum >> sample_shift; \
+			accum -= accum >> bass_shift; \
+			accum += *in++; \
+			*out++ = (blip_sample_t)s; \
+			if ((blip_sample_t)s != s) \
+				out[-1] = (blip_sample_t)(0x7FFF - (s >> 24))
 
-				// clamp sample
-				if ((blip_sample_t)s != s)
-					out[-1] = (blip_sample_t)(0x7FFF - (s >> 24));
-			}
-		} else
+		for (long n = count; n--; )
 		{
-			for (long n = count; n--; )
-			{
-				long s = accum >> sample_shift;
-				accum -= accum >> bass_shift;
-				accum += *in++;
-				in++;
-				
-				*out = (blip_sample_t)s;
-				out += 2;
-
-				// clamp sample
-				if ((blip_sample_t)s != s)
-					out[-2] = (blip_sample_t)(0x7FFF - (s >> 24));
-			}
+			long s;
+			read_sample(accum_left);
+			read_sample(accum_right);
+			
 		}
 
-		reader_accum = accum;
+		reader_accum_left = accum_left;
+		reader_accum_right = accum_right;
 		remove_samples(count);
 	}
 	return count;

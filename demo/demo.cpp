@@ -39,7 +39,7 @@ int main() {
 
     auto sampleCount = bbuf.samples_avail();
     std::unique_ptr<short[]> samples(new short[sampleCount * 2]);
-    bbuf.read_samples(samples.get(), sampleCount, 1);
+    bbuf.read_samples(samples.get(), sampleCount);
 
     Wave_Writer wav(48000);
     wav.stereo(1);
