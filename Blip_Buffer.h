@@ -6,6 +6,10 @@
 #ifndef BLIP_BUFFER_H
 #define BLIP_BUFFER_H
 
+#include <assert.h>
+
+namespace blargg {
+
 // Time unit at source clock rate
 typedef long blip_time_t;
 
@@ -252,7 +256,7 @@ private:
 // End of public interface
 
 
-#include <assert.h>
+
 
 // Compatibility with older version
 const long blip_unscaled = 65535;
@@ -349,6 +353,8 @@ inline int Blip_Reader::begin( Blip_Buffer& blip_buf )
 
 int const blip_max_length = 0;
 int const blip_default_length = 250;
+
+}
 
 #endif
 
