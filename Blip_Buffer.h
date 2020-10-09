@@ -264,18 +264,18 @@ const int blip_low_quality  = blip_med_quality;
 const int blip_best_quality = blip_high_quality;
 
 #define BLIP_FWD( i ) {                     \
-	long t0 = i0 * delta + buf [fwd + i];   \
-	long t1 = imp [blip_res * (i + 1)] * delta + buf [fwd + 1 + i]; \
+	long t0 = i0 * delta + buf [(fwd + i) * 2];   \
+	long t1 = imp [blip_res * (i + 1)] * delta + buf [(fwd + 1 + i) * 2]; \
 	i0 = imp [blip_res * (i + 2)];          \
-	buf [fwd + i] = t0;                     \
-	buf [fwd + 1 + i] = t1; }
+	buf [(fwd + i) * 2] = t0;                     \
+	buf [(fwd + 1 + i) * 2] = t1; }
 
 #define BLIP_REV( r ) {                     \
-	long t0 = i0 * delta + buf [rev - r];   \
-	long t1 = imp [blip_res * r] * delta + buf [rev + 1 - r];   \
+	long t0 = i0 * delta + buf [(rev - r) * 2];   \
+	long t1 = imp [blip_res * r] * delta + buf [(rev + 1 - r) * 2];   \
 	i0 = imp [blip_res * (r - 1)];          \
-	buf [rev - r] = t0;                     \
-	buf [rev + 1 - r] = t1; }
+	buf [(rev - r) * 2] = t0;                     \
+	buf [(rev + 1 - r) * 2] = t1; }
 
 template<int quality,int range>
 inline void Blip_Synth<quality,range>::offset_resampled( blip_resampled_time_t time,
@@ -287,7 +287,7 @@ inline void Blip_Synth<quality,range>::offset_resampled( blip_resampled_time_t t
 	delta *= impl.delta_factor;
 	int phase = (int) (time >> (BLIP_BUFFER_ACCURACY - BLIP_PHASE_BITS) & (blip_res - 1));
 	imp_t const* imp = impulses + blip_res - phase;
-	long* buf = blip_buf->buffer_ + (time >> BLIP_BUFFER_ACCURACY);
+	long* buf = blip_buf->buffer_ + static_cast<size_t>(time >> BLIP_BUFFER_ACCURACY) * 2;
 	long i0 = *imp;
 	
 	int const fwd = (blip_widest_impulse_ - quality) / 2;
@@ -298,21 +298,21 @@ inline void Blip_Synth<quality,range>::offset_resampled( blip_resampled_time_t t
 	if ( quality > 12 ) BLIP_FWD( 4 )
 	{
 		int const mid = quality / 2 - 1;
-		long t0 = i0 * delta + buf [fwd + mid - 1];
-		long t1 = imp [blip_res * mid] * delta + buf [fwd + mid];
+		long t0 = i0 * delta + buf [(fwd + mid - 1) * 2];
+		long t1 = imp [blip_res * mid] * delta + buf [(fwd + mid) * 2];
 		imp = impulses + phase;
 		i0 = imp [blip_res * mid];
-		buf [fwd + mid - 1] = t0;
-		buf [fwd + mid] = t1;
+		buf [(fwd + mid - 1) * 2] = t0;
+		buf [(fwd + mid) * 2] = t1;
 	}
 	if ( quality > 12 ) BLIP_REV( 6 )
 	if ( quality > 8  ) BLIP_REV( 4 )
 	BLIP_REV( 2 )
 	
-	long t0 = i0 * delta + buf [rev];
-	long t1 = *imp * delta + buf [rev + 1];
-	buf [rev] = t0;
-	buf [rev + 1] = t1;
+	long t0 = i0 * delta + buf [rev * 2];
+	long t1 = *imp * delta + buf [(rev + 1) * 2];
+	buf [rev * 2] = t0;
+	buf [(rev + 1) * 2] = t1;
 }
 
 #undef BLIP_FWD

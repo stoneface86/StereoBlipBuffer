@@ -22,6 +22,9 @@ int main() {
     synth.treble_eq(blip_eq_t(-8.0, 12000, 48000));
     synth.volume(0.5);
 
+    //auto &left = synth.left();
+    //auto &right = synth.right();
+
     // 75% duty square wave
     blip_time_t time = 100;
     for (int i = 1000; --i;) {
@@ -31,13 +34,15 @@ int main() {
         time += 1000;
     }
 
+
     bbuf.end_frame(time);
 
     auto sampleCount = bbuf.samples_avail();
-    std::unique_ptr<short[]> samples(new short[sampleCount]);
-    bbuf.read_samples(samples.get(), sampleCount);
+    std::unique_ptr<short[]> samples(new short[sampleCount * 2]);
+    bbuf.read_samples(samples.get(), sampleCount, 1);
 
     Wave_Writer wav(48000);
+    wav.stereo(1);
     wav.write(samples.get(), sampleCount);
 
     return 0;
