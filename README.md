@@ -10,3 +10,8 @@ of each, as Blip_Buffer now contains an sample buffer with interleaved samples.
 
 Here is a list of changes I made to the original library:
  * All code is put into the blargg namespace
+ * Blip_Buffer::buffer_ is now a stereo buffer (twice the size of buffer_size_)
+ * Blip_Synth::offset_resampled writes samples in interleaved format
+ * Blip_Buffer::read_samples writes samples to a stereo buffer
+ * Blip_Buffer::read_samples no longer takes a stereo argument
+
