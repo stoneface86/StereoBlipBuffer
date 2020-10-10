@@ -64,7 +64,7 @@ void Blip_Buffer::clear(int entire_buffer)
 	if (buffer_)
 	{
 		long count = (entire_buffer ? buffer_size_ : samples_avail());
-		memset(buffer_, 0, (count + buffer_extra) * sizeof(buf_t_));
+		memset(buffer_, 0, (count + buffer_extra) * sizeof(buf_t_) * 2);
 	}
 }
 
