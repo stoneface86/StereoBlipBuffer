@@ -161,8 +161,8 @@ void Blip_Buffer::remove_samples(long count)
 
 		// copy remaining samples to beginning and clear old samples
 		long remain = samples_avail() + buffer_extra;
-		memmove(buffer_, buffer_ + count, remain * sizeof(*buffer_) * 2);
-		memset(buffer_ + remain, 0, count * sizeof(*buffer_) * 2);
+		memmove(buffer_, buffer_ + (count * 2), remain * sizeof(*buffer_) * 2);
+		memset(buffer_ + (remain * 2), 0, count * sizeof(*buffer_) * 2);
 	}
 }
 

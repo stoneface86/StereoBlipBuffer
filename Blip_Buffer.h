@@ -194,18 +194,18 @@ public:
 	// Add an amplitude transition of specified delta, optionally into specified buffer
 	// rather than the one set with output(). Delta can be positive or negative.
 	// The actual change in amplitude is delta * (volume / range)
-	void offset( blip_time_t, int delta, Blip_Buffer* ) const;
-	void offset( blip_time_t t, int delta ) const { offset( t, delta, impl.buf ); }
+	void offset( blip_time_t, int delta, blip_term_t term, Blip_Buffer* ) const;
+	void offset( blip_time_t t, int delta, blip_term_t term ) const { offset( t, delta, term, impl.buf ); }
 	
 	// Works directly in terms of fractional output samples. Contact author for more.
 	void offset_resampled( blip_resampled_time_t, int delta, blip_term_t term, Blip_Buffer* ) const;
 	
 	// Same as offset(), except code is inlined for higher performance
-	void offset_inline( blip_time_t t, int delta, Blip_Buffer* buf ) const {
-		offset_resampled( t * buf->factor_ + buf->offset_, delta, 0, buf );
+	void offset_inline( blip_time_t t, int delta, blip_term_t term, Blip_Buffer* buf ) const {
+		offset_resampled( t * buf->factor_ + buf->offset_, delta, term, buf );
 	}
-	void offset_inline( blip_time_t t, int delta ) const {
-		offset_resampled( t * impl.buf->factor_ + impl.buf->offset_, delta, 0, impl.buf );
+	void offset_inline( blip_time_t t, int delta, blip_term_t term) const {
+		offset_resampled( t * impl.buf->factor_ + impl.buf->offset_, delta, term, impl.buf );
 	}
 	
 public:
@@ -329,9 +329,9 @@ inline void Blip_Synth<quality,range>::offset_resampled( blip_resampled_time_t t
 #undef BLIP_REV
 
 template<int quality,int range>
-void Blip_Synth<quality,range>::offset( blip_time_t t, int delta, Blip_Buffer* buf ) const
+void Blip_Synth<quality,range>::offset( blip_time_t t, int delta, blip_term_t term, Blip_Buffer* buf ) const
 {
-	offset_resampled( t * buf->factor_ + buf->offset_, delta, 0,  buf );
+	offset_resampled( t * buf->factor_ + buf->offset_, delta, term,  buf );
 }
 
 template<int quality,int range>
